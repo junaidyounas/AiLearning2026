@@ -1,0 +1,14 @@
+venv
+.env
+.env.local
+.DS_Store
+node_modules
+dist
+build
+*.log
+*.tmp
+pycache__
+__pycache__
+*.pyc
+.idea
+*.iml
