@@ -1,0 +1,7 @@
+langchain-openai
+langchain-core
+langchain-text-splitters
+boto3
+numpy
+python-dotenv
+re
