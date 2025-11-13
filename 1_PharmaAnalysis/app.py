@@ -1,4 +1,5 @@
 import pandas as pd
+import streamlit as st
 
 # For checking the version of pandas installed
 print("Pandas version:", pd.__version__)
@@ -51,5 +52,48 @@ merged = sales.merge(products, on='medicine', how='left')
 merged = merged.merge(inventory, on='medicine', how='left')
 merged = merged.merge(suppliers, on='supplier_id', how='left')
 
+# renaming date column for consistency
+merged.rename(columns={date_col: 'date'}, inplace=True)
+
 print(merged.head())
 
+
+# -----------------------------------------------
+# Page Config using Streamlit
+# -----------------------------------------------
+
+
+st.set_page_config(
+    page_title="Pharma Sales Analysis",
+    page_icon="💊",
+    layout="wide",
+)
+
+st.title("💊 Pharma Sales Analysis Dashboard")
+st.markdown(
+    """
+    This dashboard provides insights into pharmaceutical sales data, including sales trends, top-performing products, and inventory status.
+    """
+)
+
+
+# sidebar
+st.sidebar.header("Filters")
+
+min_date = merged["date"].min().date()
+max_date = merged["date"].max().date()
+
+# daterange slider in sidebar
+date_range = st.sidebar.slider(
+    "Select Date Range",
+    min_value=min_date,
+    max_value=max_date,
+    value=(min_date, max_date)
+)
+
+filtered_data = merged[
+    (merged["date"].dt.date >= date_range[0]) &
+    (merged["date"].dt.date <= date_range[1])   
+]
+
+print(filtered_data.head())
