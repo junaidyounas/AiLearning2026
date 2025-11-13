@@ -1,0 +1,11 @@
+medicine,name,category,brand,cost_price,supplier_id
+M001,Paaraacetaamol,OTC,MediCure,174.98,S009
+M002,Ibuprofen,OTC,PharmaLife,76,S001
+M003,amoxicillin,OTC,MediCure,108.66,S010
+M004,,OTC,NutraCare,77.34,S003
+M005,Azithromycin,Prescription,MediCure,163.3,S007
+M006,metformin,Prescription,BioHeal,-100,S004
+M007,Omepraazole,OTC,BioHeal,81.19,S009
+M008,atorvastatin,Prescription,BioHeal,135.16,S003
+M009,Losaartaan,Prescription,BioHeal,54.7,S005
+M010,Vitaamin C,Prescription,NutraCare,176.34,S003
