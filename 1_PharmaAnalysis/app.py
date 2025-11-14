@@ -91,9 +91,15 @@ date_range = st.sidebar.slider(
     value=(min_date, max_date)
 )
 
-filtered_data = merged[
+filtered = merged[
     (merged["date"].dt.date >= date_range[0]) &
     (merged["date"].dt.date <= date_range[1])   
 ]
 
-print(filtered_data.head())
+# print(filtered_data.head())
+
+# Category Filter
+category = st.sidebar.selectbox(
+    "Select Medicine Category",
+    options=filtered["category"].dropna().unique().tolist()
+)

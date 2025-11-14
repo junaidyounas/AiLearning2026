@@ -104,7 +104,7 @@ def search(query_embedding, bucket, index_name, client, top_k=3):
             
             results.append({
                 'text': metadata.get('text', ''),
-                'similarity': max(0.0, 1.0 - distance),  # Ensure similarity is non-negative
+                'similarity': max(0.0, 1.0 - distance),
                 'id': match.get('key', ''),
                 'chunk_index': metadata.get('chunk_index', -1)
             })
@@ -112,6 +112,15 @@ def search(query_embedding, bucket, index_name, client, top_k=3):
         return results
     except ClientError as e:
         raise RuntimeError(f"Search failed: {e}")
+
+
+
+def delete_index(bucket, index_name, client):
+    """Delete an index in S3 Vectors."""
+    try:
+        client.delete_index(vectorBucketName=bucket, indexName=index_name)
+    except ClientError as e:
+        raise RuntimeError(f"Failed to delete index: {e}")
 
 
 def main():
@@ -169,7 +178,107 @@ def main():
     for i, r in enumerate(results, 1):
         print(f"\nResult {i} - Similarity: {r['similarity']:.4f}")
         print(f"Text: {r['text']}\n")
+    
+    delete_index(bucket, index_name, client)
+    print(f"Deleted index: {index_name}")
 
 
 if __name__ == "__main__":
     main()
+
+
+
+
+# For deleting vectors
+# try:
+#                 while query_attempts < max_attempts:
+#                     # Use slightly different random vectors to get different results
+#                     random_vector = [random.uniform(-0.1, 0.1) for _ in range(dimension)]
+                    
+#                     response = manager.client.query_vectors(
+#                         vectorBucketName=manager.bucket_name,
+#                         indexName=test_index_name,
+#                         queryVector={'float32': random_vector},
+#                         topK=max_top_k,
+#                         returnMetadata=True,
+#                         returnDistance=False
+#                     )
+                    
+#                     batch_results = response.get('vectors', [])
+#                     if not batch_results:
+#                         break
+                    
+#                     # Add only new results
+#                     new_results = [r for r in batch_results if r.get('key') not in seen_keys]
+#                     if not new_results:
+#                         break
+                    
+#                     for result in new_results:
+#                         seen_keys.add(result.get('key'))
+                    
+#                     all_results.extend(new_results)
+#                     query_attempts += 1
+                    
+#                     # If we got fewer than max results, we've likely got everything
+#                     if len(batch_results) < max_top_k:
+#                         break
+                
+#                 print(f"   Queried {query_attempts} times, found {len(all_results)} total vectors")
+                
+#                 # Filter by source_id
+#                 matching_keys = []
+#                 for result in all_results:
+#                     metadata = result.get('metadata', {})
+#                     if metadata.get('source_id') == test_source_id_1:
+#                         matching_keys.append(result.get('key'))
+                
+#                 print(f"   Found {len(matching_keys)} vectors with source_id={test_source_id_1}")
+                
+#                 if matching_keys and hasattr(manager.client, 'delete_vectors'):
+#                     # Delete in batches
+#                     deleted_count = 0
+#                     batch_size = 100
+#                     for i in range(0, len(matching_keys), batch_size):
+#                         batch_keys = matching_keys[i:i + batch_size]
+#                         try:
+#                             manager.client.delete_vectors(
+#                                 vectorBucketName=manager.bucket_name,
+#                                 indexName=test_index_name,
+#                                 keys=batch_keys
+#                             )
+#                             deleted_count += len(batch_keys)
+#                             print(f"   ✅ Deleted batch {i//batch_size + 1} ({len(batch_keys)} vectors)")
+#                         except Exception as e:
+#                             print(f"   ⚠️ Failed to delete batch: {e}")
+                    
+#                     print(f"✅ Deleted {deleted_count} vectors for source_id={test_source_id_1}")
+                    
+#                     # Wait for deletion to propagate
+#                     print("Waiting 2 seconds for deletion to propagate...")
+#                     time.sleep(2)
+                    
+#                     # Verify deletion - search again
+#                     results_after = manager.search(query, test_index_name, top_k=10)
+#                     print(f"\n✅ Search after deletion - Found {len(results_after)} results")
+                    
+#                     # Check that file 1 vectors are gone but file 2 vectors remain
+#                     file_1_after = [r for r in results_after if r.get('id', '').startswith(f'file_{test_source_id_1}')]
+#                     file_2_after = [r for r in results_after if r.get('id', '').startswith(f'file_{test_source_id_2}')]
+                    
+#                     print(f"   File 1 vectors after deletion: {len(file_1_after)}")
+#                     print(f"   File 2 vectors after deletion: {len(file_2_after)}")
+                    
+#                     if len(file_1_after) == 0 and len(file_2_after) > 0:
+#                         print(f"   ✅ Success! File 1 vectors deleted, File 2 vectors remain")
+#                     else:
+#                         print(f"   ⚠️ Deletion may not have worked as expected")
+                    
+#                 else:
+#                     print(f"⚠️ delete_vectors API not available or no matching vectors found")
+#                     print(f"   This is expected if the API doesn't support delete_vectors yet")
+                
+#             except Exception as e:
+#                 print(f"⚠️ Error during deletion test: {e}")
+#                 import traceback
+#                 traceback.print_exc()
+            
